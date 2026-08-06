@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bizz Eazy Lite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14213D; --ink-soft:#4A5573; --line:#E4E7F0; --bg:#F7F9FB; --card:#FFFFFF;
+  --teal:#0E8A84; --teal-dark:#0A6560; --teal-soft:#E3F3F2;
+  --mango:#F4A300; --mango-soft:#FDF1D9;
+  --red:#D64545; --red-soft:#FBE7E7; --green:#2E9E5B; --green-soft:#E4F5EB;
+  --r:14px; --shadow:0 2px 10px rgba(20,33,61,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+h1,h2,h3,.brand{font-family:'Sora',sans-serif}
+a{color:var(--teal);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;width:100%;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal)}
+label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin:12px 0 5px}
+.btn{display:inline-flex;align-items:center;gap:7px;justify-content:center;padding:10px 18px;border-radius:10px;border:none;font-weight:600;font-size:14px;transition:.15s}
+.btn-p{background:var(--teal);color:#fff}.btn-p:hover{background:var(--teal-dark)}
+.btn-o{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-ghost{background:transparent;color:var(--ink-soft)}
+.btn-danger{background:var(--red-soft);color:var(--red)}
+.btn-sm{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Header */
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.hwrap{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:12px 20px}
+.brand{font-weight:800;font-size:19px;color:var(--ink)}
+.brand b{color:var(--teal)}
+.brand small{font-size:11px;font-weight:600;color:var(--mango);vertical-align:super;margin-left:2px}
+nav{margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+nav a{padding:7px 12px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:14px}
+nav a.active,nav a:hover{background:var(--teal-soft);color:var(--teal-dark)}
+.cartbtn{position:relative}
+.cartbadge{position:absolute;top:-4px;right:-4px;background:var(--mango);color:#fff;font-size:11px;font-weight:700;border-radius:99px;padding:1px 6px}
+
+main{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.grid{display:grid;gap:16px}
+.grid-3{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.muted{color:var(--ink-soft);font-size:13px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.b-new{background:var(--mango-soft);color:#9a6a00}
+.b-accepted{background:var(--teal-soft);color:var(--teal-dark)}
+.b-preparing{background:#EAE6FB;color:#5A46C7}
+.b-out_for_delivery{background:#E0EEFB;color:#1D6FB8}
+.b-delivered{background:var(--green-soft);color:var(--green)}
+.b-cancelled{background:var(--red-soft);color:var(--red)}
+.b-active{background:var(--green-soft);color:var(--green)}
+.b-pending{background:var(--mango-soft);color:#9a6a00}
+.b-suspended{background:var(--red-soft);color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding:8px 10px;border-bottom:1.5px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tab{padding:8px 14px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:13px;color:var(--ink-soft)}
+.tab.active{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* Hero */
+.hero{padding:34px 0 26px}
+.hero h1{font-size:clamp(26px,4.5vw,40px);font-weight:800;letter-spacing:-.02em}
+.hero h1 span{color:var(--teal)}
+.hero p{color:var(--ink-soft);margin-top:8px;max-width:520px}
+.wave{height:5px;width:120px;margin-top:14px;border-radius:99px;background:repeating-linear-gradient(90deg,var(--teal) 0 14px,var(--mango) 14px 20px)}
+
+/* Store card */
+.store{cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.store:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(20,33,61,.1)}
+.store .cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mango)}
+.store h3{margin:4px 0 6px;font-size:17px}
+.avatar{width:44px;height:44px;border-radius:12px;background:var(--teal-soft);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Sora';font-size:18px;margin-bottom:10px}
+
+/* Product */
+.prod{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.prod:last-child{border:none}
+.price{font-weight:700;color:var(--teal-dark);white-space:nowrap}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-weight:700}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(20,33,61,.45);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:30px 16px;overflow:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:24px}
+.modal h2{font-size:19px;margin-bottom:4px}
+
+/* Track timeline */
+.tl{margin:16px 0;padding-left:4px}
+.tl-step{display:flex;gap:12px;padding-bottom:18px;position:relative}
+.tl-step:before{content:'';position:absolute;left:9px;top:22px;bottom:0;width:2px;background:var(--line)}
+.tl-step:last-child:before{display:none}
+.dot{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);background:#fff;flex-shrink:0;z-index:1}
+.tl-step.done .dot{background:var(--teal);border-color:var(--teal)}
+.tl-step.done:before{background:var(--teal)}
+.tl-step .muted{font-size:12px}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;font-size:14px;z-index:200;display:none}
+.empty{text-align:center;padding:48px 20px;color:var(--ink-soft)}
+.empty .big{font-size:34px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.kpi .card{padding:14px}
+.kpi .n{font-family:'Sora';font-weight:800;font-size:24px}
+.kpi .l{font-size:12px;color:var(--ink-soft);font-weight:600}
+.hidden{display:none!important}
+@media(max-width:640px){.hwrap{padding:10px 14px}main{padding:16px 14px 70px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <a class="brand" href="#/">Bizz <b>Eazy</b><small>LITE</small></a>
+    <nav id="nav">
+      <a href="#/" data-r="home">Stores</a>
+      <a href="#/track" data-r="track">Track order</a>
+      <a href="#/biz" data-r="biz">For businesses</a>
+      <a href="#/admin" data-r="admin" id="adminLink" class="hidden">Admin</a>
+      <a href="#" id="cartLink" class="cartbtn">🛒<span class="cartbadge hidden" id="cartCount">0</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ================= CONFIG ================= */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const ADMIN_EMAILS = ["vaddever@gmail.com"];
+/* ========================================== */
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const FV = firebase.firestore.FieldValue;
+
+const CATEGORIES = ["Food & Café","Grocery","Bakery","Fashion","Electronics","Services","Other"];
+const ORDER_FLOW = ["new","accepted","preparing","out_for_delivery","delivered"];
+const STATUS_LABEL = {new:"New",accepted:"Accepted",preparing:"Preparing",out_for_delivery:"Out for delivery",delivered:"Delivered",cancelled:"Cancelled"};
+
+let user=null, myBiz=null, isAdmin=false;
+let cart = JSON.parse(localStorage.getItem("bel_cart")||"{}"); // {bizId:{bizName,items:{prodId:{name,price,qty}}}}
+let unsub=[];
+
+const $=id=>document.getElementById(id);
+const app=$("app");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mvr=n=>"MVR "+Number(n||0).toFixed(2);
+const fmtDate=ts=>ts?.toDate ? ts.toDate().toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "—";
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",2600)}
+function saveCart(){localStorage.setItem("bel_cart",JSON.stringify(cart));updateCartBadge()}
+function cartItemCount(){let n=0;for(const b in cart)for(const p in cart[b].items)n+=cart[b].items[p].qty;return n}
+function updateCartBadge(){const n=cartItemCount();const b=$("cartCount");b.textContent=n;b.classList.toggle("hidden",n===0)}
+function clearUnsubs(){unsub.forEach(u=>u&&u());unsub=[]}
+function orderCode(){const c="ABCDEFGHJKMNPQRSTUVWXYZ23456789";let s="BE-";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function openModal(html){$("modalBox").innerHTML=html;$("modalBg").classList.add("open")}
+function closeModal(){$("modalBg").classList.remove("open")}
+$("modalBg").onclick=e=>{if(e.target.id==="modalBg")closeModal()};
+$("cartLink").onclick=e=>{e.preventDefault();showCart()};
+
+/* ================= AUTH STATE ================= */
+auth.onAuthStateChanged(async u=>{
+  user=u; isAdmin = !!u && ADMIN_EMAILS.includes(u.email);
+  $("adminLink").classList.toggle("hidden",!isAdmin);
+  myBiz=null;
+  if(u && !isAdmin){
+    const snap=await db.collection("businesses").where("ownerUid","==",u.uid).limit(1).get();
+    if(!snap.empty) myBiz={id:snap.docs[0].id,...snap.docs[0].data()};
+  }
+  route();
+});
+
+/* ================= ROUTER ================= */
+window.addEventListener("hashchange",route);
+function route(){
+  clearUnsubs();
+  const h=location.hash||"#/";
+  document.querySelectorAll("nav a[data-r]").forEach(a=>a.classList.remove("active"));
+  if(h==="#/"){mark("home");viewHome()}
+  else if(h.startsWith("#/store/")){mark("home");viewStore(h.split("/")[2])}
+  else if(h.startsWith("#/track")){mark("track");viewTrack(h.split("/")[2]||"")}
+  else if(h==="#/biz"){mark("biz");viewBiz()}
+  else if(h==="#/admin"){mark("admin");viewAdmin()}
+  else viewHome();
+  updateCartBadge();
+}
+function mark(r){const a=document.querySelector(`nav a[data-r="${r}"]`);a&&a.classList.add("active")}
+
+/* ================= CUSTOMER: HOME ================= */
+async function viewHome(){
+  app.innerHTML=`
+    <div class="hero">
+      <h1>Order from local shops, <span>the eazy way</span>.</h1>
+      <p>Browse stores across the Maldives, place your order in a minute, and track it from kitchen to doorstep — no account needed.</p>
+      <div class="wave"></div>
+    </div>
+    <div class="tabs" id="catTabs"></div>
+    <div class="grid grid-3" id="storeGrid"><div class="empty">Loading stores…</div></div>`;
+  let activeCat="All";
+  const tabs=$("catTabs");
+  ["All",...CATEGORIES].forEach(c=>{
+    const b=document.createElement("button");b.className="tab"+(c==="All"?" active":"");b.textContent=c;
+    b.onclick=()=>{activeCat=c;tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));b.classList.add("active");render()};
+    tabs.appendChild(b);
+  });
+  let stores=[];
+  try{
+    const snap=await db.collection("businesses").where("status","==","active").get();
+    stores=snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){ $("storeGrid").innerHTML=`<div class="empty">Could not load stores. Check your connection.</div>`;return }
+  function render(){
+    const list=stores.filter(s=>activeCat==="All"||s.category===activeCat);
+    $("storeGrid").innerHTML = list.length? list.map(s=>`
+      <div class="card store" onclick="location.hash='#/store/${s.id}'">
+        <div class="avatar">${esc((s.name||"?")[0].toUpperCase())}</div>
+        <div class="cat">${esc(s.category||"Store")}</div>
+        <h3>${esc(s.name)}</h3>
+        <div class="muted">${esc(s.tagline||s.island||"")}</div>
+      </div>`).join("") : `<div class="empty"><div class="big">🏝️</div>No stores here yet.</div>`;
+  }
+  render();
+}
+
+/* ================= CUSTOMER: STORE ================= */
+async function viewStore(bizId){
+  app.innerHTML=`<div class="empty">Loading store…</div>`;
+  const doc=await db.collection("businesses").doc(bizId).get();
+  if(!doc.exists||doc.data().status!=="active"){app.innerHTML=`<div class="empty">This store is not available.</div>`;return}
+  const biz={id:doc.id,...doc.data()};
+  const prods=(await db.collection("businesses").doc(bizId).collection("products").where("available","==",true).get()).docs.map(d=>({id:d.id,...d.data()}));
+  app.innerHTML=`
+    <a href="#/" class="muted">← All stores</a>
+    <div class="row spread" style="margin:14px 0 20px">
+      <div class="row"><div class="avatar" style="margin:0">${esc(biz.name[0].toUpperCase())}</div>
+        <div><h2>${esc(biz.name)}</h2><div class="muted">${esc(biz.category||"")} ${biz.island?("· "+esc(biz.island)):""} ${biz.phone?("· "+esc(biz.phone)):""}</div></div>
+      </div>
+      <button class="btn btn-p" onclick="showCart()">View cart</button>
+    </div>
+    <div class="card" id="prodList">
+      ${prods.length? prods.map(p=>`
+        <div class="prod">
+          <div><strong>${esc(p.name)}</strong><div class="muted">${esc(p.desc||"")}</div><div class="price" style="margin-top:4px">${mvr(p.price)}</div></div>
+          <div class="qty">
+            <button onclick="chQty('${biz.id}','${p.id}',-1)">−</button>
+            <span id="q_${p.id}">${cart[biz.id]?.items[p.id]?.qty||0}</span>
+            <button onclick="chQty('${biz.id}','${p.id}',1)">+</button>
+          </div>
+        </div>`).join("") : `<div class="empty">No products listed yet.</div>`}
+    </div>`;
+  window._storeProds=Object.fromEntries(prods.map(p=>[p.id,p]));
+  window._storeBiz=biz;
+}
+window.chQty=(bizId,pid,d)=>{
+  const p=window._storeProds[pid], biz=window._storeBiz;
+  if(!cart[bizId])cart[bizId]={bizName:biz.name,items:{}};
+  const it=cart[bizId].items[pid]||{name:p.name,price:p.price,qty:0};
+  it.qty=Math.max(0,it.qty+d);
+  if(it.qty===0)delete cart[bizId].items[pid]; else cart[bizId].items[pid]=it;
+  if(!Object.keys(cart[bizId].items).length)delete cart[bizId];
+  $("q_"+pid).textContent=it.qty;
+  saveCart();
+};
+
+/* ================= CART & CHECKOUT ================= */
+window.showCart=()=>{
+  const bizIds=Object.keys(cart);
+  if(!bizIds.length){openModal(`<h2>Your cart</h2><div class="empty"><div class="big">🛒</div>Cart is empty. Browse a store to add items.</div><button class="btn btn-o" style="width:100%" onclick="closeModal()">Close</button>`);return}
+  openModal(`<h2>Your cart</h2>${bizIds.map(b=>{
+    const c=cart[b];const total=Object.values(c.items).reduce((s,i)=>s+i.price*i.qty,0);
+    return `<div style="margin:14px 0"><strong>${esc(c.bizName)}</strong>
+      ${Object.entries(c.items).map(([pid,i])=>`<div class="row spread" style="padding:6px 0"><span>${esc(i.name)} × ${i.qty}</span><span class="price">${mvr(i.price*i.qty)}</span></div>`).join("")}
+      <div class="row spread" style="border-top:1.5px solid var(--line);padding-top:8px"><strong>Total</strong><strong class="price">${mvr(total)}</strong></div>
+      <button class="btn btn-p" style="width:100%;margin-top:10px" onclick="checkout('${b}')">Checkout — ${esc(c.bizName)}</button>
+    </div>`}).join("<hr style='border:none;border-top:1px solid var(--line)'>")}
+    <button class="btn btn-ghost" style="width:100%" onclick="cart={};saveCart();closeModal()">Clear cart</button>`);
+};
+window.checkout=(bizId)=>{
+  const c=cart[bizId];
+  openModal(`<h2>Checkout</h2><div class="muted">${esc(c.bizName)}</div>
+    <label>Your name</label><input id="cName">
+    <label>Phone</label><input id="cPhone" placeholder="7XXXXXX">
+    <label>Delivery address</label><textarea id="cAddr" rows="2" placeholder="House / road / island"></textarea>
+    <label>Note (optional)</label><input id="cNote">
+    <button class="btn btn-p" style="width:100%;margin-top:16px" id="placeBtn">Place order</button>`);
+  $("placeBtn").onclick=async()=>{
+    const name=$("cName").value.trim(),phone=$("cPhone").value.trim(),addr=$("cAddr").value.trim();
+    if(!name||!phone||!addr){toast("Name, phone and address are required");return}
+    $("placeBtn").disabled=true;
+    const items=Object.entries(c.items).map(([pid,i])=>({productId:pid,name:i.name,price:i.price,qty:i.qty}));
+    const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+    const code=orderCode();
+    try{
+      await db.collection("orders").add({
+        code, bizId, bizName:c.bizName,
+        customer:{name,phone,address:addr,note:$("cNote").value.trim()},
+        items, total, status:"new",
+        createdAt:FV.serverTimestamp(),
+        history:[{status:"new",at:new Date().toISOString()}]
+      });
+      delete cart[bizId]; saveCart(); closeModal();
+      location.hash="#/track/"+code;
+      toast("Order placed! Save your code: "+code);
+    }catch(e){toast("Could not place order. Try again.");$("placeBtn").disabled=false}
+  };
+};
+
+/* ================= TRACK ================= */
+function viewTrack(code){
+  app.innerHTML=`
+    <h2 style="margin-bottom:6px">Track your order</h2>
+    <p class="muted">Enter the order code you received at checkout (e.g. BE-XXXXXX).</p>
+    <div class="row" style="margin:16px 0;max-width:420px">
+      <input id="trkCode" value="${esc(code)}" placeholder="BE-XXXXXX" style="text-transform:uppercase">
+      <button class="btn btn-p" id="trkBtn">Track</button>
+    </div>
+    <div id="trkResult"></div>`;
+  $("trkBtn").onclick=()=>{const v=$("trkCode").value.trim().toUpperCase();if(v)location.hash="#/track/"+v};
+  if(code)trackLive(code.toUpperCase());
+}
+function trackLive(code){
+  const box=$("trkResult");box.innerHTML=`<div class="empty">Searching…</div>`;
+  const u=db.collection("orders").where("code","==",code).limit(1).onSnapshot(snap=>{
+    if(snap.empty){box.innerHTML=`<div class="empty"><div class="big">🔍</div>No order found for <strong>${esc(code)}</strong>. Check the code and try again.</div>`;return}
+    const o=snap.docs[0].data();
+    const idx=o.status==="cancelled"?-1:ORDER_FLOW.indexOf(o.status);
+    box.innerHTML=`<div class="card" style="max-width:560px">
+      <div class="row spread"><div><strong>${esc(o.code)}</strong><div class="muted">${esc(o.bizName)} · ${fmtDate(o.createdAt)}</div></div>
+      <span class="badge b-${o.status}">${STATUS_LABEL[o.status]}</span></div>
+      ${o.status==="cancelled"?`<p style="margin-top:12px;color:var(--red)">This order was cancelled by the store. Contact them if unexpected.</p>`:`
+      <div class="tl" style="margin-top:18px">${ORDER_FLOW.map((s,i)=>`
+        <div class="tl-step ${i<=idx?"done":""}"><div class="dot"></div>
+          <div><strong>${STATUS_LABEL[s]}</strong><div class="muted">${i<=idx?"Done":"Waiting"}</div></div>
+        </div>`).join("")}</div>`}
+      <div style="border-top:1px solid var(--line);padding-top:12px">
+        ${o.items.map(i=>`<div class="row spread"><span>${esc(i.name)} × ${i.qty}</span><span class="price">${mvr(i.price*i.qty)}</span></div>`).join("")}
+        <div class="row spread" style="margin-top:8px"><strong>Total</strong><strong class="price">${mvr(o.total)}</strong></div>
+      </div>
+    </div>`;
+  },()=>{box.innerHTML=`<div class="empty">Could not load order. Check your connection.</div>`});
+  unsub.push(u);
+}
+
+/* ================= BUSINESS ================= */
+function viewBiz(){
+  if(!user||isAdmin){ return bizAuthView() }
+  if(!myBiz){ return bizRegisterView() }
+  if(myBiz.status==="pending"){
+    app.innerHTML=`<div class="empty" style="max-width:520px;margin:40px auto"><div class="big">⏳</div>
+      <h2>${esc(myBiz.name)} is awaiting approval</h2>
+      <p class="muted" style="margin:8px 0 16px">The portal admin reviews new businesses before they go live. You'll be able to add products and receive orders once approved.</p>
+      <button class="btn btn-ghost" onclick="auth.signOut()">Sign out</button></div>`;
+    return;
+  }
+  if(myBiz.status==="suspended"){
+    app.innerHTML=`<div class="empty" style="max-width:520px;margin:40px auto"><div class="big">🚫</div>
+      <h2>Account suspended</h2><p class="muted" style="margin:8px 0 16px">Your store is currently hidden from customers. This usually means the subscription has lapsed — contact the portal admin to reactivate.</p>
+      <button class="btn btn-ghost" onclick="auth.signOut()">Sign out</button></div>`;
+    return;
+  }
+  bizDashboard();
+}
+
+function bizAuthView(){
+  app.innerHTML=`<div class="card" style="max-width:420px;margin:30px auto">
+    <h2>Business sign in</h2><p class="muted">Manage your store, products and orders.</p>
+    <label>Email</label><input id="bEmail" type="email">
+    <label>Password</label><input id="bPass" type="password">
+    <button class="btn btn-p" style="width:100%;margin-top:16px" id="bLogin">Sign in</button>
+    <button class="btn btn-o" style="width:100%;margin-top:8px" id="bSignup">Create business account</button>
+  </div>`;
+  $("bLogin").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("bEmail").value.trim(),$("bPass").value)}catch(e){toast(e.message)}};
+  $("bSignup").onclick=async()=>{
+    const em=$("bEmail").value.trim(),pw=$("bPass").value;
+    if(!em||pw.length<6){toast("Enter email and a password of 6+ characters");return}
+    try{await auth.createUserWithEmailAndPassword(em,pw)}catch(e){toast(e.message)}
+  };
+}
+
+function bizRegisterView(){
+  app.innerHTML=`<div class="card" style="max-width:480px;margin:30px auto">
+    <h2>Register your business</h2><p class="muted">One quick form — then the admin approves you and you're live.</p>
+    <label>Business name</label><input id="rName">
+    <label>Category</label><select id="rCat">${CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select>
+    <label>Island / location</label><input id="rIsland" placeholder="e.g. Malé, Hulhumalé">
+    <label>Contact phone</label><input id="rPhone">
+    <label>Short tagline (optional)</label><input id="rTag" placeholder="Fresh bread daily">
+    <div class="row" style="margin-top:16px">
+      <button class="btn btn-p" id="rSubmit" style="flex:1">Submit for approval</button>
+      <button class="btn btn-ghost" onclick="auth.signOut()">Sign out</button>
+    </div>
+  </div>`;
+  $("rSubmit").onclick=async()=>{
+    const name=$("rName").value.trim();
+    if(!name){toast("Business name is required");return}
+    $("rSubmit").disabled=true;
+    try{
+      const ref=await db.collection("businesses").add({
+        name,category:$("rCat").value,island:$("rIsland").value.trim(),phone:$("rPhone").value.trim(),
+        tagline:$("rTag").value.trim(),ownerUid:user.uid,ownerEmail:user.email,
+        status:"pending",plan:"none",planExpiry:null,createdAt:FV.serverTimestamp()
+      });
+      myBiz={id:ref.id,name,status:"pending"};
+      route();
+    }catch(e){toast("Could not register. Try again.");$("rSubmit").disabled=false}
+  };
+}
+
+function bizDashboard(){
+  app.innerHTML=`
+    <div class="row spread" style="margin-bottom:16px">
+      <div><h2>${esc(myBiz.name)}</h2><div class="muted">Plan: <strong>${esc(myBiz.plan||"none")}</strong>${myBiz.planExpiry?` · expires ${new Date(myBiz.planExpiry.toDate?myBiz.planExpiry.toDate():myBiz.planExpiry).toLocaleDateString("en-GB")}`:""}</div></div>
+      <div class="row"><span class="badge b-active">Active</span><button class="btn btn-ghost btn-sm" onclick="auth.signOut()">Sign out</button></div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="tOrders" onclick="bizTab('orders')">Orders</button>
+      <button class="tab" id="tProds" onclick="bizTab('prods')">Products</button>
+    </div>
+    <div id="bizBody"></div>`;
+  bizTab("orders");
+}
+window.bizTab=(t)=>{
+  $("tOrders").classList.toggle("active",t==="orders");
+  $("tProds").classList.toggle("active",t==="prods");
+  clearUnsubs();
+  t==="orders"?bizOrders():bizProducts();
+};
+
+function bizOrders(){
+  const body=$("bizBody");
+  body.innerHTML=`<div class="kpi" id="kpis"></div><div id="ordList" class="grid grid-2"><div class="empty">Loading orders…</div></div>`;
+  const u=db.collection("orders").where("bizId","==",myBiz.id).orderBy("createdAt","desc").limit(100).onSnapshot(snap=>{
+    const orders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const count=s=>orders.filter(o=>o.status===s).length;
+    $("kpis").innerHTML=[["New",count("new")],["In progress",count("accepted")+count("preparing")+count("out_for_delivery")],["Delivered",count("delivered")],["Today MVR",orders.filter(o=>o.status!=="cancelled"&&o.createdAt?.toDate&&o.createdAt.toDate().toDateString()===new Date().toDateString()).reduce((s,o)=>s+o.total,0).toFixed(0)]]
+      .map(([l,n])=>`<div class="card"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+    $("ordList").innerHTML = orders.length? orders.map(o=>{
+      const next=ORDER_FLOW[ORDER_FLOW.indexOf(o.status)+1];
+      return `<div class="card">
+        <div class="row spread"><strong>${esc(o.code)}</strong><span class="badge b-${o.status}">${STATUS_LABEL[o.status]}</span></div>
+        <div class="muted" style="margin:4px 0 8px">${fmtDate(o.createdAt)} · ${esc(o.customer.name)} · ${esc(o.customer.phone)}<br>${esc(o.customer.address)}${o.customer.note?`<br>📝 ${esc(o.customer.note)}`:""}</div>
+        ${o.items.map(i=>`<div class="row spread"><span>${esc(i.name)} × ${i.qty}</span><span class="price">${mvr(i.price*i.qty)}</span></div>`).join("")}
+        <div class="row spread" style="margin:8px 0"><strong>Total</strong><strong class="price">${mvr(o.total)}</strong></div>
+        <div class="row">
+          ${next&&o.status!=="cancelled"?`<button class="btn btn-p btn-sm" onclick="setOrderStatus('${o.id}','${next}')">Mark ${STATUS_LABEL[next].toLowerCase()}</button>`:""}
+          ${o.status!=="delivered"&&o.status!=="cancelled"?`<button class="btn btn-sm btn-o" onclick="editOrder('${o.id}')">Edit items</button>
+          <button class="btn btn-danger btn-sm" onclick="setOrderStatus('${o.id}','cancelled')">Cancel</button>`:""}
+        </div>
+      </div>`}).join("") : `<div class="empty"><div class="big">📭</div>No orders yet. Share your store link with customers.</div>`;
+    window._bizOrders=Object.fromEntries(orders.map(o=>[o.id,o]));
+  },e=>{ $("ordList").innerHTML=`<div class="empty">Could not load orders.${e.message.includes("index")?" (Create the Firestore index from the console link in DevTools.)":""}</div>` });
+  unsub.push(u);
+}
+window.setOrderStatus=async(id,status)=>{
+  if(status==="cancelled"&&!confirm("Cancel this order?"))return;
+  await db.collection("orders").doc(id).update({status,history:FV.arrayUnion({status,at:new Date().toISOString()})});
+  toast("Order "+STATUS_LABEL[status].toLowerCase());
+};
+window.editOrder=(id)=>{
+  const o=window._bizOrders[id];
+  openModal(`<h2>Edit order ${esc(o.code)}</h2><p class="muted">Adjust quantities (0 removes an item), then save. The customer sees the updated total when tracking.</p>
+    <div id="editItems">${o.items.map((i,idx)=>`
+      <div class="row spread" style="padding:8px 0"><span>${esc(i.name)} — ${mvr(i.price)}</span>
+      <input type="number" min="0" value="${i.qty}" data-idx="${idx}" style="width:80px"></div>`).join("")}</div>
+    <button class="btn btn-p" style="width:100%;margin-top:12px" id="saveEdit">Save changes</button>`);
+  $("saveEdit").onclick=async()=>{
+    const items=o.items.map((i,idx)=>({...i,qty:Number(document.querySelector(`#editItems input[data-idx="${idx}"]`).value)||0})).filter(i=>i.qty>0);
+    if(!items.length){toast("An order needs at least one item — cancel it instead.");return}
+    const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+    await db.collection("orders").doc(id).update({items,total,edited:true});
+    closeModal();toast("Order updated");
+  };
+};
+
+function bizProducts(){
+  const body=$("bizBody");
+  body.innerHTML=`<div class="row spread" style="margin-bottom:12px"><h3>Products</h3><button class="btn btn-p btn-sm" onclick="prodForm()">+ Add product</button></div><div class="card" id="prodTable"><div class="empty">Loading…</div></div>`;
+  const u=db.collection("businesses").doc(myBiz.id).collection("products").orderBy("name").onSnapshot(snap=>{
+    const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
+    window._bizProds=Object.fromEntries(prods.map(p=>[p.id,p]));
+    $("prodTable").innerHTML= prods.length? `<table><tr><th>Product</th><th>Price</th><th>Available</th><th></th></tr>
+      ${prods.map(p=>`<tr>
+        <td><strong>${esc(p.name)}</strong><div class="muted">${esc(p.desc||"")}</div></td>
+        <td class="price">${mvr(p.price)}</td>
+        <td><span class="badge ${p.available?"b-active":"b-suspended"}">${p.available?"Yes":"Hidden"}</span></td>
+        <td class="row">
+          <button class="btn btn-o btn-sm" onclick="prodForm('${p.id}')">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleProd('${p.id}',${!p.available})">${p.available?"Hide":"Show"}</button>
+          <button class="btn btn-danger btn-sm" onclick="delProd('${p.id}')">Delete</button>
+        </td></tr>`).join("")}</table>` : `<div class="empty"><div class="big">🍞</div>No products yet. Add your first product to start selling.</div>`;
+  });
+  unsub.push(u);
+}
+window.prodForm=(id)=>{
+  const p=id?window._bizProds[id]:{name:"",desc:"",price:"",available:true};
+  openModal(`<h2>${id?"Edit":"Add"} product</h2>
+    <label>Name</label><input id="pName" value="${esc(p.name)}">
+    <label>Description</label><input id="pDesc" value="${esc(p.desc||"")}">
+    <label>Price (MVR)</label><input id="pPrice" type="number" min="0" step="0.5" value="${p.price}">
+    <label class="row" style="display:flex;margin-top:14px"><input type="checkbox" id="pAvail" style="width:auto" ${p.available?"checked":""}> Available to customers</label>
+    <button class="btn btn-p" style="width:100%;margin-top:14px" id="pSave">Save product</button>`);
+  $("pSave").onclick=async()=>{
+    const name=$("pName").value.trim(),price=Number($("pPrice").value);
+    if(!name||!(price>=0)){toast("Name and a valid price are required");return}
+    const data={name,desc:$("pDesc").value.trim(),price,available:$("pAvail").checked};
+    const col=db.collection("businesses").doc(myBiz.id).collection("products");
+    id? await col.doc(id).update(data) : await col.add({...data,createdAt:FV.serverTimestamp()});
+    closeModal();toast("Product saved");
+  };
+};
+window.toggleProd=async(id,v)=>db.collection("businesses").doc(myBiz.id).collection("products").doc(id).update({available:v});
+window.delProd=async(id)=>{if(confirm("Delete this product?"))await db.collection("businesses").doc(myBiz.id).collection("products").doc(id).delete()};
+
+/* ================= ADMIN ================= */
+function viewAdmin(){
+  if(!user||!isAdmin){
+    app.innerHTML=`<div class="card" style="max-width:420px;margin:30px auto">
+      <h2>Admin sign in</h2>
+      <label>Email</label><input id="aEmail" type="email">
+      <label>Password</label><input id="aPass" type="password">
+      <button class="btn btn-p" style="width:100%;margin-top:16px" id="aLogin">Sign in</button>
+      ${user?`<p class="muted" style="margin-top:10px">Signed in as ${esc(user.email)} — this account is not an admin.</p>`:""}
+    </div>`;
+    $("aLogin").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("aEmail").value.trim(),$("aPass").value)}catch(e){toast(e.message)}};
+    return;
+  }
+  app.innerHTML=`
+    <div class="row spread" style="margin-bottom:16px"><h2>Portal admin</h2>
+      <div class="row"><span class="muted">${esc(user.email)}</span><button class="btn btn-ghost btn-sm" onclick="auth.signOut()">Sign out</button></div></div>
+    <div class="tabs">
+      <button class="tab active" id="atBiz" onclick="adminTab('biz')">Businesses</button>
+      <button class="tab" id="atPlans" onclick="adminTab('plans')">Plans & settings</button>
+    </div>
+    <div id="adminBody"></div>`;
+  adminTab("biz");
+}
+window.adminTab=(t)=>{
+  $("atBiz").classList.toggle("active",t==="biz");
+  $("atPlans").classList.toggle("active",t==="plans");
+  clearUnsubs();
+  t==="biz"?adminBiz():adminPlans();
+};
+function adminBiz(){
+  $("adminBody").innerHTML=`<div class="card" id="bizTable"><div class="empty">Loading…</div></div>`;
+  const u=db.collection("businesses").orderBy("createdAt","desc").onSnapshot(async snap=>{
+    const plansDoc=await db.collection("config").doc("plans").get();
+    const plans=plansDoc.exists?plansDoc.data().list||[]:[];
+    const bizs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    window._adminPlans=plans;
+    $("bizTable").innerHTML= bizs.length? `<table><tr><th>Business</th><th>Owner</th><th>Status</th><th>Plan</th><th>Actions</th></tr>
+      ${bizs.map(b=>{
+        const exp=b.planExpiry?new Date(b.planExpiry.toDate?b.planExpiry.toDate():b.planExpiry):null;
+        const expired=exp&&exp<new Date();
+        return `<tr>
+        <td><strong>${esc(b.name)}</strong><div class="muted">${esc(b.category||"")} · ${esc(b.island||"")}</div></td>
+        <td class="muted">${esc(b.ownerEmail||"")}<br>${esc(b.phone||"")}</td>
+        <td><span class="badge b-${b.status}">${b.status}</span></td>
+        <td>${esc(b.plan||"none")}${exp?`<div class="muted" ${expired?'style="color:var(--red)"':''}>${expired?"expired ":"until "}${exp.toLocaleDateString("en-GB")}</div>`:""}</td>
+        <td class="row">
+          ${b.status==="pending"?`<button class="btn btn-p btn-sm" onclick="setBizStatus('${b.id}','active')">Approve</button>`:""}
+          ${b.status==="active"?`<button class="btn btn-danger btn-sm" onclick="setBizStatus('${b.id}','suspended')">Suspend</button>`:""}
+          ${b.status==="suspended"?`<button class="btn btn-p btn-sm" onclick="setBizStatus('${b.id}','active')">Reactivate</button>`:""}
+          <button class="btn btn-o btn-sm" onclick="sellPlan('${b.id}','${esc(b.name)}')">Set plan</button>
+        </td></tr>`}).join("")}</table>` : `<div class="empty">No businesses registered yet.</div>`;
+  });
+  unsub.push(u);
+}
+window.setBizStatus=async(id,status)=>{await db.collection("businesses").doc(id).update({status});toast("Business "+status)};
+window.sellPlan=(id,name)=>{
+  const plans=window._adminPlans||[];
+  openModal(`<h2>Set subscription</h2><div class="muted">${esc(name)}</div>
+    <label>Plan</label><select id="spPlan">${plans.length?plans.map(p=>`<option value="${esc(p.name)}">${esc(p.name)} — ${mvr(p.price)}/${esc(p.period||"mo")}</option>`).join(""):`<option value="basic">basic</option>`}</select>
+    <label>Valid until</label><input id="spExp" type="date">
+    <button class="btn btn-p" style="width:100%;margin-top:16px" id="spSave">Save subscription</button>`);
+  const d=new Date();d.setMonth(d.getMonth()+1);$("spExp").value=d.toISOString().slice(0,10);
+  $("spSave").onclick=async()=>{
+    const exp=$("spExp").value;if(!exp){toast("Pick an expiry date");return}
+    await db.collection("businesses").doc(id).update({plan:$("spPlan").value,planExpiry:new Date(exp+"T23:59:59")});
+    closeModal();toast("Subscription updated");
+  };
+};
+async function adminPlans(){
+  const doc=await db.collection("config").doc("plans").get();
+  const data=doc.exists?doc.data():{list:[{name:"Basic",price:99,period:"mo"},{name:"Pro",price:249,period:"mo"}],portalName:"Bizz Eazy Lite"};
+  $("adminBody").innerHTML=`<div class="card" style="max-width:560px">
+    <h3>Subscription plans</h3>
+    <p class="muted">These appear when you assign a plan to a business.</p>
+    <div id="planRows"></div>
+    <button class="btn btn-o btn-sm" style="margin-top:8px" id="addPlan">+ Add plan</button>
+    <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+    <label>Support contact shown to businesses</label><input id="cfgContact" value="${esc(data.contact||"")}" placeholder="phone or email">
+    <button class="btn btn-p" style="margin-top:16px" id="savePlans">Save settings</button>
+  </div>`;
+  let list=data.list||[];
+  function render(){
+    $("planRows").innerHTML=list.map((p,i)=>`
+      <div class="row" style="margin:8px 0">
+        <input value="${esc(p.name)}" data-f="name" data-i="${i}" placeholder="Plan name" style="flex:2">
+        <input value="${p.price}" data-f="price" data-i="${i}" type="number" placeholder="MVR" style="flex:1">
+        <select data-f="period" data-i="${i}" style="flex:1"><option ${p.period==="mo"?"selected":""} value="mo">monthly</option><option ${p.period==="yr"?"selected":""} value="yr">yearly</option></select>
+        <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();window._delPlan(${i})">✕</button>
+      </div>`).join("");
+    $("planRows").querySelectorAll("input,select").forEach(el=>el.onchange=()=>{list[+el.dataset.i][el.dataset.f]=el.dataset.f==="price"?Number(el.value):el.value});
+  }
+  window._delPlan=i=>{list.splice(i,1)};
+  $("addPlan").onclick=()=>{list.push({name:"",price:0,period:"mo"});render()};
+  $("savePlans").onclick=async()=>{
+    await db.collection("config").doc("plans").set({list:list.filter(p=>p.name),contact:$("cfgContact").value.trim()},{merge:true});
+    toast("Settings saved");
+  };
+  render();
+}
+
+route();
+</script>
+</body>
+</html>
