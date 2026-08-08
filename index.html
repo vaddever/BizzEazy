@@ -147,13 +147,13 @@ td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
 <script>
 /* ===== CONFIG — paste your Firebase project details here ===== */
 const firebaseConfig={
-  apiKey: "AIzaSyCCWOuycDkcsmwFu7DIrPR1PFRf23oZwk8",
-  authDomain: "bizz-eazy.firebaseapp.com",
-  projectId: "bizz-eazy",
-  storageBucket: "bizz-eazy.firebasestorage.app",
-  messagingSenderId: "1090705757043",
-  appId: "1:1090705757043:web:7fc3e8e835796559246b06",
-  measurementId: "G-6YBCHRG8F1"
+  apiKey:"AIzaSyCCWOuycDkcsmwFu7DIrPR1PFRf23oZwk8",
+  authDomain:"bizz-eazy.firebaseapp.com",
+  projectId:"bizz-eazy",
+  storageBucket:"bizz-eazy.firebasestorage.app",
+  messagingSenderId:"1090705757043",
+  appId:"1:1090705757043:web:7fc3e8e835796559246b06",
+  measurementId:"G-6YBCHRG8F1"
 };
 const ADMIN_EMAILS=["vaddever@gmail.com"];
 /* ============================================================= */
@@ -436,18 +436,15 @@ function trackLive(code){
     const oid=snap.docs[0].id,o=snap.docs[0].data();
     const idx=o.status==="cancelled"?-1:FLOW.indexOf(o.status);
     const isPaid=o.paymentStatus==="paid";
-    const canPay=o.status==="accepted"&&o.paymentStatus==="unpaid";
-    const slipPending=o.paymentStatus==="pending_transfer";
+    const canPay=o.status==="accepted"&&(o.paymentStatus==="unpaid");
+    const slipPending=o.status==="accepted"&&o.paymentStatus==="pending_transfer";
     // sync local status
     const llist=getMyOrders(),lf=llist.find(x=>x.code===code);
     if(lf){lf.status=o.status;localStorage.setItem("eb_myorders",JSON.stringify(llist))}
     box.innerHTML=`<div class="card" style="max-width:560px">
       <div class="row spread">
         <div><strong style="font-size:16px">${esc(o.code)}</strong><div class="muted">${esc(o.bizName)} · ${fmtDate(o.createdAt)}</div></div>
-        <div style="text-align:right">
-          <span class="badge b-${o.status}">${SL[o.status]}</span>
-          <br><span class="badge b-${o.paymentStatus||"unpaid"}" style="margin-top:4px">${PL[o.paymentStatus||"unpaid"]}</span>
-        </div>
+        <div style="text-align:right">${statusBadges(o)}</div>
       </div>
       ${o.status==="cancelled"?`<div style="margin-top:12px;padding:12px;background:var(--red-soft);border-radius:10px;color:var(--red)">
         Order cancelled.
@@ -605,10 +602,7 @@ function bizOrders(){
       return`<div class="card">
         <div class="row spread">
           <strong>${esc(o.code)}</strong>
-          <div style="text-align:right">
-            <span class="badge b-${o.status}">${SL[o.status]}</span>
-            <br><span class="badge b-${o.paymentStatus||"unpaid"}" style="margin-top:3px">${PL[o.paymentStatus||"unpaid"]}</span>
-          </div>
+          <div style="text-align:right">${statusBadges(o)}</div>
         </div>
         <div class="muted" style="margin:5px 0 8px">${fmtDate(o.createdAt)} · ${esc(o.customer?.name)} · ${esc(o.customer?.phone)}<br>${esc(o.customer?.address)}${o.customer?.note?`<br>📝 ${esc(o.customer.note)}`:""}</div>
         ${o.transferSlip?`<div style="margin-bottom:10px">
@@ -622,8 +616,8 @@ function bizOrders(){
         ${o.status!=="delivered"&&o.status!=="cancelled"?`<div class="row">
           <label style="margin:0;font-size:12px;white-space:nowrap">Set status:</label>
           <select onchange="setStatus('${o.id}',this.value)" style="width:auto;padding:6px 8px;font-size:13px">
-            ${FLOW.map(s=>`<option value="${s}" ${o.status===s?"selected":""}>${SL[s]}</option>`).join("")}
-            <option value="cancelled">Cancelled</option>
+            ${(isPaid?FLOW.slice(Math.max(0,FLOW.indexOf(o.status))):FLOW).map(s=>`<option value="${s}" ${o.status===s?"selected":""}>${SL[s]}</option>`).join("")}
+            ${!isPaid?`<option value="cancelled">Cancelled</option>`:""}
           </select>
           ${canEdit?`<button class="btn btn-o btn-sm" onclick="addItemsToOrder('${o.id}')">+ Items</button>
           <button class="btn btn-ghost btn-sm" onclick="editOrder('${o.id}')">Edit</button>`:""}
@@ -992,6 +986,24 @@ async function adminPlans(){
 }
 
 $("cartLink").onclick=e=>{e.preventDefault();showCart()};
+
+/* combined status badge HTML used on both customer & business sides */
+function statusBadges(o){
+  const s=o.status,p=o.paymentStatus||"unpaid";
+  // Accepted but unpaid — merge into one clear label
+  if(s==="accepted"&&p==="unpaid")
+    return`<span class="badge b-unpaid">Accepted · Waiting for payment</span>`;
+  if(s==="accepted"&&p==="pending_transfer")
+    return`<span class="badge b-pending_transfer">Accepted · Slip submitted</span>`;
+  // For all other states show order status + payment badge separately
+  let html=`<span class="badge b-${s}">${SL[s]}</span>`;
+  if(p==="paid") html+=`<br><span class="badge b-paid" style="margin-top:4px">✅ Paid</span>`;
+  else if(p==="pending_transfer") html+=`<br><span class="badge b-pending_transfer" style="margin-top:4px">Slip submitted</span>`;
+  else if(p==="refund_requested") html+=`<br><span class="badge b-refund_requested" style="margin-top:4px">Refund requested</span>`;
+  else if(p==="refunded") html+=`<br><span class="badge b-refunded" style="margin-top:4px">Refunded</span>`;
+  return html;
+}
+
 route();
 </script>
 </body>
