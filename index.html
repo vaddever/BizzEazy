@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eazy Bizz</title>
+<title>Kleio Easy Grocer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -118,13 +118,23 @@ td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
 .hidden{display:none!important}
 .notif-btn{background:var(--mango-soft);color:#9a6a00;border:none;border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer}
 .slip-img{max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--line);display:block;margin-top:6px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px}
+.cat-card{border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center;transition:.15s;position:relative}
+.cat-card.selectable{cursor:pointer}.cat-card.selected{border-color:var(--teal);background:var(--teal-soft)}
+.cat-card img{display:block;margin:0 auto 8px;width:70px;height:70px;object-fit:contain}
+.cat-card .iname{font-size:13px;font-weight:600;line-height:1.3}
+.sel-check{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;display:none;align-items:center;justify-content:center}
+.cat-card.selected .sel-check{display:flex}
+.btn-wa{background:#25D366;color:#fff;border:none}.btn-wa:hover{background:#1da851}
+.btn-viber{background:#7360F2;color:#fff;border:none}.btn-viber:hover{background:#5a47d4}
+.price-warn{color:var(--mango);font-size:12px;font-weight:600}
 @media(max-width:640px){.hwrap{padding:10px 14px}main{padding:16px 14px 70px}.grid-3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <header>
   <div class="hwrap">
-    <a class="brand" href="#/">Eazy <b>Bizz</b></a>
+    <a class="brand" href="#/"><span style="color:var(--teal)">Kleio</span> Easy Grocer</a>
     <nav id="nav">
       <a href="#/" data-r="home">Stores</a>
       <a href="#/orders" data-r="orders">My orders</a>
@@ -191,7 +201,7 @@ function getAddrs(){return JSON.parse(localStorage.getItem("eb_addrs")||"[]")}
 function saveAddr(a){if(!a)return;const l=getAddrs().filter(x=>x!==a);l.unshift(a);localStorage.setItem("eb_addrs",JSON.stringify(l.slice(0,8)))}
 function getMyOrders(){return JSON.parse(localStorage.getItem("eb_myorders")||"[]")}
 function saveMyOrder(o){const l=getMyOrders().filter(x=>x.code!==o.code);l.unshift(o);localStorage.setItem("eb_myorders",JSON.stringify(l.slice(0,30)))}
-function orderCode(){const c="ABCDEFGHJKMNPQRSTUVWXYZ23456789";let s="EB-";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function orderCode(){const c="ABCDEFGHJKMNPQRSTUVWXYZ23456789";let s="KEG-";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
 
 /* ── image compression ── */
 function compressImg(file,mw=500,mh=500,q=0.75){
@@ -263,8 +273,8 @@ function startNotifWatch(bizId){
 async function vHome(){
   app.innerHTML=`
     <div class="hero">
-      <h1>Order from local shops, <span>the eazy way</span>.</h1>
-      <p>Browse stores, place your order in minutes, and track it from kitchen to doorstep.</p>
+      <h1>Your local grocery, <span>delivered eazy</span>.</h1>
+      <p>Browse stores across the Maldives, order fresh groceries in minutes, and track right to your door.</p>
       <div class="wave"></div>
     </div>
     <div class="tabs" id="catTabs"></div>
@@ -308,7 +318,7 @@ async function vStore(bizId){
   const doc=await db.collection("businesses").doc(bizId).get();
   if(!doc.exists||doc.data().status!=="active"){app.innerHTML=`<div class="empty">This store is not available.</div>`;return}
   const biz={id:doc.id,...doc.data()};
-  const prods=(await db.collection("businesses").doc(bizId).collection("products").where("available","==",true).get()).docs.map(d=>({id:d.id,...d.data()}));
+  const prods=(await db.collection("businesses").doc(bizId).collection("products").where("available","==",true).get()).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sortOrder||99)-(b.sortOrder||99)||a.name.localeCompare(b.name));
   app.innerHTML=`
     <a href="#/" class="muted">← All stores</a>
     <div class="row spread" style="margin:14px 0 20px">
@@ -319,12 +329,15 @@ async function vStore(bizId){
           ${biz.openTime?`<div class="muted">Hours: ${esc(biz.openTime)} – ${esc(biz.closeTime)}</div>`:""}
         </div>
       </div>
-      <button class="btn btn-p" onclick="showCart()">🛒 View cart</button>
+      <div class="row">
+        <button class="btn btn-o btn-sm" onclick="shareStore('${location.origin+location.pathname}#/store/${biz.id}','${esc(biz.name)}')">📤 Share</button>
+        <button class="btn btn-p" onclick="showCart()">🛒 View cart</button>
+      </div>
     </div>
     <div class="card" id="prodList">
       ${prods.length?prods.map(p=>`
         <div class="prod">
-          ${p.imageData?`<img class="prod-img" src="${p.imageData}" alt="">`:``}
+          ${(p.imageUrl||p.imageData)?`<img class="prod-img" src="${p.imageUrl||p.imageData}" alt="">`:``}
           <div style="flex:1"><strong>${esc(p.name)}</strong><div class="muted">${esc(p.desc||"")}</div><div class="price" style="margin-top:4px">${mvr(p.price)}</div></div>
           <div class="qty">
             <button onclick="chQty('${biz.id}','${p.id}',-1)">−</button>
@@ -335,6 +348,9 @@ async function vStore(bizId){
     </div>`;
   window._SP=Object.fromEntries(prods.map(p=>[p.id,p]));
   window._SB=biz;
+  // cache wa number in cart for quick access
+  if(cart[bizId])cart[bizId].waNumber=biz.whatsappNumber||'';
+  saveCart();
 }
 window.chQty=(bid,pid,d)=>{
   const p=window._SP[pid],biz=window._SB;
@@ -358,7 +374,9 @@ window.showCart=()=>{
     return`<div style="margin:14px 0"><strong>${esc(c.bizName)}</strong>
       ${Object.entries(c.items).map(([,i])=>`<div class="row spread" style="padding:5px 0"><span>${esc(i.name)} × ${i.qty}</span><span class="price">${mvr(i.price*i.qty)}</span></div>`).join("")}
       <div class="row spread" style="border-top:1.5px solid var(--line);padding-top:8px"><strong>Total</strong><strong class="price">${mvr(total)}</strong></div>
-      <button class="btn btn-p" style="width:100%;margin-top:10px" onclick="checkout('${b}')">Checkout — ${esc(c.bizName)}</button></div>`
+      <button class="btn btn-p" style="width:100%;margin-top:10px" onclick="checkout('${b}')">Checkout — ${esc(c.bizName)}</button>
+      ${c.waNumber?`<button class="btn btn-wa" style="width:100%;margin-top:6px" onclick="orderViaWhatsApp('${b}')">📲 Order via WhatsApp</button>`:""}
+    </div>`
   }).join("<hr style='border:none;border-top:1px solid var(--line)'>")}<button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="cart={};saveCart();closeModal()">Clear all</button>`);
 };
 
@@ -419,9 +437,9 @@ function vMyOrders(){
 function vTrack(code){
   app.innerHTML=`
     <h2 style="margin-bottom:6px">Track your order</h2>
-    <p class="muted">Enter the order code from your confirmation (e.g. EB-XXXXXX).</p>
+    <p class="muted">Enter the order code from your confirmation (e.g. KEG-XXXXXX).</p>
     <div class="row" style="margin:16px 0;max-width:420px">
-      <input id="tCode" value="${esc(code)}" placeholder="EB-XXXXXX" style="text-transform:uppercase">
+      <input id="tCode" value="${esc(code)}" placeholder="KEG-XXXXXX" style="text-transform:uppercase">
       <button class="btn btn-p" onclick="doTrack()">Track</button>
     </div>
     <div id="tRes"></div>`;
@@ -601,7 +619,7 @@ function bizOrders(){
       const canEdit=!isPaid&&o.status!=="delivered"&&o.status!=="cancelled";
       return`<div class="card">
         <div class="row spread">
-          <strong>${esc(o.code)}</strong>
+          <div><strong>${esc(o.code)}</strong>${o.source==="whatsapp"?` <span class="badge" style="background:#25D366;color:#fff">📲 WhatsApp</span>`:""}</div>
           <div style="text-align:right">${statusBadges(o)}</div>
         </div>
         <div class="muted" style="margin:5px 0 8px">${fmtDate(o.createdAt)} · ${esc(o.customer?.name)} · ${esc(o.customer?.phone)}<br>${esc(o.customer?.address)}${o.customer?.note?`<br>📝 ${esc(o.customer.note)}`:""}</div>
@@ -678,7 +696,8 @@ function bizProds(){
     <div class="row spread" style="margin-bottom:12px">
       <h3>Products</h3>
       <div class="row">
-        <button class="btn btn-o btn-sm" onclick="bulkCSV()">📂 Bulk CSV upload</button>
+        <button class="btn btn-o btn-sm" onclick="bizAddFromCatalog()">📋 From catalog</button>
+        <button class="btn btn-o btn-sm" onclick="bulkCSV()">📂 Bulk CSV</button>
         <button class="btn btn-p btn-sm" onclick="prodForm()">+ Add product</button>
       </div>
     </div>
@@ -689,8 +708,8 @@ function bizProds(){
     $("prodTable").innerHTML=prods.length?`<table><tr><th>Product</th><th>Price</th><th>Status</th><th></th></tr>
       ${prods.map(p=>`<tr>
         <td><div class="row" style="gap:8px">
-          ${p.imageData?`<img src="${p.imageData}" style="width:40px;height:40px;border-radius:8px;object-fit:cover">`:``}
-          <div><strong>${esc(p.name)}</strong><div class="muted">${esc(p.desc||"")}</div></div></div></td>
+          ${(p.imageUrl||p.imageData)?`<img src="${p.imageUrl||p.imageData}" style="width:40px;height:40px;border-radius:8px;object-fit:cover">`:``}
+          <div><strong>${esc(p.name)}</strong><div class="muted">${esc(p.desc||"")}</div>${!p.price?`<div class="price-warn">⚠️ Set price to activate</div>`:""}</div></div></td>
         <td class="price">${mvr(p.price)}</td>
         <td><span class="badge ${p.available?"b-active":"b-suspended"}">${p.available?"Available":"Hidden"}</span></td>
         <td><div class="row">
@@ -710,13 +729,14 @@ window.prodForm=id=>{
     <label>Product image</label>
     <input type="file" id="pImg" accept="image/*" onchange="prevProdImg(this)">
     ${p.imageData?`<img src="${p.imageData}" id="pImgPrev" class="slip-img">`:`<img id="pImgPrev" class="slip-img" style="display:none">`}
-    <label class="row" style="display:flex;margin-top:14px"><input type="checkbox" id="pAvail" style="width:auto" ${p.available?"checked":""}> Available to customers</label>
+    <label>Display order <span class="muted">(lower number = shown first)</span></label><input id="pOrder" type="number" min="1" value="${p.sortOrder||99}" style="width:100px">
+    <label class="row" style="display:flex;margin-top:14px"><input type="checkbox" id="pAvail" style="width:auto" ${p.available&&p.price?"checked":""}> Available to customers</label>
     <button class="btn btn-p" style="width:100%;margin-top:14px" id="pSave">Save product</button>`);
   window._PIData=p.imageData||"";
   $("pSave").onclick=async()=>{
     const name=$("pName").value.trim(),price=Number($("pPrice").value);
     if(!name||!(price>=0)){toast("Name and valid price required");return}
-    const data={name,desc:$("pDesc").value.trim(),price,available:$("pAvail").checked,imageData:window._PIData};
+    const data={name,desc:$("pDesc").value.trim(),price,available:$("pAvail").checked&&price>0,sortOrder:Number($("pOrder").value)||99,imageData:window._PIData,imageUrl:p.imageUrl||""};
     const col=db.collection("businesses").doc(myBiz.id).collection("products");
     id?await col.doc(id).update(data):await col.add({...data,createdAt:FV.serverTimestamp()});
     closeModal();toast("Product saved");
@@ -768,6 +788,7 @@ async function bizSettings(){
     ${d.logoImg?`<img src="${d.logoImg}" id="sLogoPrev" class="slip-img">`:`<img id="sLogoPrev" class="slip-img" style="display:none">`}
     <label>Island / location</label><input id="sIsland" value="${esc(d.island||"")}">
     <label>Contact phone</label><input id="sPhone" value="${esc(d.phone||"")}">
+    <label>WhatsApp number <span class="muted">(with country code, e.g. 9607654321)</span></label><input id="sWA" value="${esc(d.whatsappNumber||"")}" placeholder="9607XXXXXX">
     <label>Tagline</label><input id="sTag" value="${esc(d.tagline||"")}">
     <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
     <h3>Opening hours</h3>
@@ -786,7 +807,7 @@ async function bizSettings(){
   $("sCard").onchange=()=>$("cardF").style.display=$("sCard").checked?"":"none";
   $("saveSet").onclick=async()=>{
     await db.collection("businesses").doc(myBiz.id).update({
-      island:$("sIsland").value.trim(),phone:$("sPhone").value.trim(),tagline:$("sTag").value.trim(),
+      island:$("sIsland").value.trim(),phone:$("sPhone").value.trim(),whatsappNumber:$("sWA").value.replace(/\D/g,""),tagline:$("sTag").value.trim(),
       openTime:$("sOpen").value,closeTime:$("sClose").value,logoImg:window._SLD,
       acceptsCard:$("sCard").checked,cardLink:$("sCardLink")?.value.trim()||"",
       acceptsTransfer:$("sTransfer").checked,
@@ -835,7 +856,7 @@ async function genBizReport(){
 window.dlBizPDF=()=>{
   const{jsPDF}=window.jspdf;const doc=new jsPDF();
   const{ords,from,to}=window._RD||{ords:[],from:new Date(),to:new Date()};
-  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Eazy Bizz — Order Report",14,18);
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Kleio Easy Grocer — Order Report",14,18);
   doc.setFontSize(11);doc.setFont("helvetica","normal");
   doc.text(`Business: ${myBiz.name||""}`,14,28);
   doc.text(`Period: ${from.toLocaleDateString("en-GB")} – ${to.toLocaleDateString("en-GB")}`,14,35);
@@ -869,17 +890,18 @@ function vAdmin(){
       <div class="row"><span class="muted">${esc(user.email)}</span><button class="btn btn-ghost btn-sm" onclick="auth.signOut()">Sign out</button></div></div>
     <div class="tabs">
       <button class="tab active" id="atBiz" onclick="adminTab('biz')">Businesses</button>
-      <button class="tab" id="atReport" onclick="adminTab('report')">All orders report</button>
+      <button class="tab" id="atCatalog" onclick="adminTab('catalog')">Product catalog</button>
+      <button class="tab" id="atReport" onclick="adminTab('report')">All reports</button>
       <button class="tab" id="atPlans" onclick="adminTab('plans')">Plans & settings</button>
     </div>
     <div id="adminBody"></div>`;
   adminTab("biz");
 }
 window.adminTab=t=>{
-  ["Biz","Report","Plans"].forEach(x=>{const el=$("at"+x);if(el)el.classList.remove("active")});
+  ["Biz","Catalog","Report","Plans"].forEach(x=>{const el=$("at"+x);if(el)el.classList.remove("active")});
   const el=$("at"+t[0].toUpperCase()+t.slice(1));if(el)el.classList.add("active");
   clearUnsubs();
-  if(t==="biz")adminBiz();else if(t==="report")adminReport();else adminPlans();
+  if(t==="biz")adminBiz();else if(t==="catalog")adminCatalog();else if(t==="report")adminReport();else adminPlans();
 };
 function adminBiz(){
   $("adminBody").innerHTML=`<div class="card" id="bizTable"><div class="empty">Loading…</div></div>`;
@@ -951,14 +973,14 @@ async function genAdminReport(){
 window.dlAdminPDF=()=>{
   const{jsPDF}=window.jspdf;const doc=new jsPDF();
   const{rows,gRev,gPaid,ords,from,to}=window._ARD||{rows:[],gRev:0,gPaid:0,ords:[],from:new Date(),to:new Date()};
-  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Eazy Bizz — Portal Report",14,18);
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Kleio Easy Grocer — Portal Report",14,18);
   doc.setFontSize(11);doc.setFont("helvetica","normal");
   doc.text(`Period: ${from.toLocaleDateString("en-GB")} – ${to.toLocaleDateString("en-GB")}`,14,28);
   doc.text(`Total orders: ${ords.length}  |  Revenue: MVR ${gRev.toFixed(2)}  |  Collected: MVR ${gPaid.toFixed(2)}`,14,36);
   doc.autoTable({startY:44,head:[["Business","Orders","Revenue (MVR)","Collected (MVR)"]],
     body:rows.map(r=>[r.name,r.orders,r.revenue.toFixed(2),r.paid.toFixed(2)]),
     styles:{fontSize:9},headStyles:{fillColor:[14,138,132]}});
-  doc.save(`eazybizz-portal-${from.toISOString().slice(0,10)}.pdf`);
+  doc.save(`kleio-grocer-portal-${from.toISOString().slice(0,10)}.pdf`);
 };
 async function adminPlans(){
   const doc=await db.collection("config").doc("plans").get();
@@ -986,6 +1008,237 @@ async function adminPlans(){
 }
 
 $("cartLink").onclick=e=>{e.preventDefault();showCart()};
+
+/* =========================================================
+   SHARE STORE
+   ========================================================= */
+function shareStore(url,name){
+  openModal(`<h2>Share ${esc(name)}</h2>
+    <p class="muted">Send this store link to customers so they can order directly.</p>
+    <input value="${esc(url)}" id="shareUrl" readonly onclick="this.select()" style="margin:10px 0">
+    <div class="row">
+      <a href="https://wa.me/?text=${encodeURIComponent("Order groceries from "+name+" on Kleio Easy Grocer: "+url)}" target="_blank" class="btn btn-wa" style="flex:1">📲 WhatsApp</a>
+      <a href="viber://forward?text=${encodeURIComponent("Order groceries from "+name+": "+url)}" class="btn btn-viber" style="flex:1">📲 Viber</a>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${esc(url)}').then(()=>toast('Link copied!'))">📋 Copy link</button>`);
+}
+
+/* =========================================================
+   WHATSAPP ORDERING — creates a real portal order + sends WA
+   ========================================================= */
+window.orderViaWhatsApp=async bizId=>{
+  const c=cart[bizId];
+  if(!c?.waNumber){toast("This store hasn't enabled WhatsApp ordering.");return}
+  const addrs=getAddrs();
+  openModal(`<h2>Order via WhatsApp</h2>
+    <p class="muted" style="margin-bottom:10px">📲 <strong>${esc(c.bizName)}</strong> · Your order lands in the portal AND goes to the store on WhatsApp.</p>
+    <label>Your name</label><input id="wN">
+    <label>Phone</label><input id="wP" placeholder="7XXXXXX">
+    <label>Delivery address</label>
+    <div class="addr-wrap">
+      <input id="wA" placeholder="House / road / island" autocomplete="off" oninput="filterWA(this.value)">
+      ${addrs.length?`<div class="addr-sug" id="wAddrSug">${addrs.map(a=>`<div onclick="pickWA('${esc(a)}')">${esc(a)}</div>`).join("")}</div>`:""}
+    </div>
+    <label>Note (optional)</label><input id="wNote">
+    <button class="btn btn-wa" style="width:100%;margin-top:16px" id="waBtn">📲 Place order via WhatsApp</button>`);
+  $("waBtn").onclick=async()=>{
+    const name=$("wN").value.trim(),phone=$("wP").value.trim(),addr=$("wA").value.trim();
+    if(!name||!phone||!addr){toast("All fields are required");return}
+    $("waBtn").disabled=true;
+    const items=Object.entries(c.items).map(([pid,i])=>({productId:pid,name:i.name,price:i.price,qty:i.qty}));
+    const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+    const code=orderCode();
+    try{
+      await db.collection("orders").add({
+        code,bizId,bizName:c.bizName,
+        customer:{name,phone,address:addr,note:$("wNote").value.trim()},
+        items,total,status:"new",paymentStatus:"unpaid",source:"whatsapp",
+        createdAt:FV.serverTimestamp(),history:[{status:"new",at:new Date().toISOString()}]
+      });
+      saveAddr(addr);
+      saveMyOrder({code,bizName:c.bizName,total,date:new Date().toISOString(),status:"new"});
+      const itemsList=items.map(i=>"• "+i.name+" × "+i.qty+" — MVR "+(i.price*i.qty).toFixed(2)).join("\n");
+      const trackUrl=location.origin+location.pathname+"#/track/"+code;
+      const msg="*Order — Kleio Easy Grocer* 🛒\n\n*Code:* "+code+"\n*Store:* "+c.bizName+"\n\n*Customer:*\nName: "+name+"\nPhone: "+phone+"\nAddress: "+addr+($("wNote").value.trim()?"\nNote: "+$("wNote").value.trim():"")+"\n\n*Items:*\n"+itemsList+"\n\n*Total: MVR "+total.toFixed(2)+"*\n\nTrack: "+trackUrl;
+      delete cart[bizId];saveCart();closeModal();
+      window.open("https://wa.me/"+c.waNumber.replace(/\D/g,"")+"?text="+encodeURIComponent(msg));
+      location.hash="#/track/"+code;
+      toast("Order placed! Code: "+code,5000);
+    }catch{toast("Could not place order.");$("waBtn").disabled=false}
+  };
+};
+window.pickWA=addr=>{const el=$("wA");if(el){el.value=addr;const s=$("wAddrSug");if(s)s.style.display="none"}};
+window.filterWA=v=>{const s=$("wAddrSug");if(!s)return;s.querySelectorAll("div").forEach(d=>d.style.display=d.textContent.toLowerCase().includes(v.toLowerCase())?"":"none")};
+
+/* =========================================================
+   ADMIN: CATALOG
+   ========================================================= */
+function adminCatalog(){
+  $("adminBody").innerHTML=`
+    <div class="row spread" style="margin-bottom:16px">
+      <h3>Product catalog</h3>
+      <div class="row">
+        <button class="btn btn-o btn-sm" onclick="searchOFFModal()">🔍 Import from Open Food Facts</button>
+        <button class="btn btn-p btn-sm" onclick="addCatalogManual()">+ Add manually</button>
+      </div>
+    </div>
+    <input id="catQ" placeholder="Filter catalog…" oninput="filterCatalogList(this.value)" style="margin-bottom:12px">
+    <div id="catalogGrid"><div class="empty">Loading catalog…</div></div>`;
+  loadCatalog();
+}
+async function loadCatalog(){
+  const snap=await db.collection("catalog").orderBy("name").get();
+  window._catalog=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderCatalog(window._catalog);
+}
+function renderCatalog(items){
+  $("catalogGrid").innerHTML=items.length?`<div class="cat-grid">${items.map(item=>`
+    <div class="cat-card">
+      ${item.imageUrl?`<img src="${item.imageUrl}" onerror="this.style.display='none'" alt="">`:
+        `<div style="width:70px;height:70px;background:var(--bg);border-radius:8px;margin:0 auto 8px"></div>`}
+      <div class="iname">${esc(item.name)}</div>
+      ${item.brand?`<div class="muted">${esc(item.brand)}</div>`:""}
+      ${item.unit?`<div class="muted">${esc(item.unit)}</div>`:""}
+      <div class="row" style="margin-top:8px;justify-content:center;gap:6px">
+        <button class="btn btn-o btn-sm" onclick="editCatalogItem('${item.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="delCatalogItem('${item.id}')">Del</button>
+      </div>
+    </div>`).join("")}</div>`:
+  `<div class="empty"><div class="big">📦</div>Catalog is empty. Import from Open Food Facts or add manually.</div>`;
+}
+window.filterCatalogList=q=>{
+  const lower=q.toLowerCase();
+  const filtered=(window._catalog||[]).filter(i=>i.name.toLowerCase().includes(lower)||(i.brand||"").toLowerCase().includes(lower));
+  renderCatalog(filtered);
+};
+
+/* Open Food Facts search & import */
+window.searchOFFModal=()=>{
+  openModal(`<h2>Import from Open Food Facts</h2>
+    <p class="muted">Search the world's largest open food database — free and public.</p>
+    <div class="row" style="margin-top:10px">
+      <input id="offQ" placeholder="e.g. rice, milk, pasta, yogurt…" style="flex:1" onkeydown="if(event.key==='Enter')doOFFSearch()">
+      <button class="btn btn-p btn-sm" onclick="doOFFSearch()">Search</button>
+    </div>
+    <div id="offRes" style="margin-top:12px"></div>`);
+};
+window.doOFFSearch=async()=>{
+  const q=$("offQ").value.trim();if(!q)return;
+  $("offRes").innerHTML=`<div class="empty">Searching Open Food Facts…</div>`;
+  try{
+    const r=await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms="+encodeURIComponent(q)+"&json=1&page_size=24&fields=product_name,brands,image_thumb_url,quantity");
+    const d=await r.json();
+    const prods=(d.products||[]).filter(p=>p.product_name&&p.image_thumb_url).slice(0,24);
+    if(!prods.length){$("offRes").innerHTML=`<p class="muted" style="margin-top:8px">No results with images found. Try a different keyword.</p>`;return}
+    window._offProds=prods;
+    $("offRes").innerHTML=`<div style="max-height:380px;overflow:auto"><div class="cat-grid">${prods.map((p,i)=>`
+      <div class="cat-card" id="ofc_${i}">
+        <img src="${p.image_thumb_url}" onerror="this.style.display='none'" alt="">
+        <div class="iname">${esc(p.product_name)}</div>
+        ${p.brands?`<div class="muted">${esc(p.brands.split(",")[0].trim())}</div>`:""}
+        ${p.quantity?`<div class="muted">${esc(p.quantity)}</div>`:""}
+        <button class="btn btn-p btn-sm" style="width:100%;margin-top:6px" onclick="addOFFItem(${i})">+ Add</button>
+      </div>`).join("")}</div></div>`;
+  }catch{$("offRes").innerHTML=`<p style="color:var(--red)">Search failed. Check your internet connection.</p>`}
+};
+window.addOFFItem=async idx=>{
+  const p=window._offProds[idx];
+  await db.collection("catalog").add({
+    name:p.product_name,brand:p.brands?.split(",")[0]?.trim()||"",
+    unit:p.quantity||"",imageUrl:p.image_thumb_url||"",category:"",
+    createdAt:FV.serverTimestamp()
+  });
+  const btn=document.querySelector("#ofc_"+idx+" button");
+  if(btn){btn.textContent="✓ Added";btn.disabled=true;btn.style.background="var(--green)"}
+  toast("Added: "+p.product_name);
+};
+
+/* Catalog manual add / edit / delete */
+window.addCatalogManual=()=>{
+  openModal(`<h2>Add catalog item</h2>
+    <label>Name</label><input id="ncName">
+    <label>Brand</label><input id="ncBrand">
+    <label>Unit / weight</label><input id="ncUnit" placeholder="e.g. 1kg, 500ml">
+    <label>Category</label><input id="ncCat">
+    <label>Image URL</label><input id="ncImg" placeholder="Paste image URL">
+    <button class="btn btn-p" style="width:100%;margin-top:14px" id="ncSave">Add to catalog</button>`);
+  $("ncSave").onclick=async()=>{
+    const name=$("ncName").value.trim();if(!name){toast("Name required");return}
+    await db.collection("catalog").add({name,brand:$("ncBrand").value.trim(),unit:$("ncUnit").value.trim(),category:$("ncCat").value.trim(),imageUrl:$("ncImg").value.trim(),createdAt:FV.serverTimestamp()});
+    closeModal();toast("Added to catalog");loadCatalog();
+  };
+};
+window.editCatalogItem=id=>{
+  const item=(window._catalog||[]).find(i=>i.id===id)||{name:"",brand:"",unit:"",category:"",imageUrl:""};
+  openModal(`<h2>Edit catalog item</h2>
+    <label>Name</label><input id="ecName" value="${esc(item.name)}">
+    <label>Brand</label><input id="ecBrand" value="${esc(item.brand||"")}">
+    <label>Unit / weight</label><input id="ecUnit" value="${esc(item.unit||"")}">
+    <label>Category</label><input id="ecCat" value="${esc(item.category||"")}">
+    <label>Image URL</label><input id="ecImg" value="${esc(item.imageUrl||"")}">
+    ${item.imageUrl?`<img src="${item.imageUrl}" style="max-height:80px;border-radius:8px;margin-top:6px" onerror="this.style.display='none'">`:``}
+    <button class="btn btn-p" style="width:100%;margin-top:14px" id="ecSave">Save changes</button>`);
+  $("ecSave").onclick=async()=>{
+    await db.collection("catalog").doc(id).update({name:$("ecName").value.trim(),brand:$("ecBrand").value.trim(),unit:$("ecUnit").value.trim(),category:$("ecCat").value.trim(),imageUrl:$("ecImg").value.trim()});
+    closeModal();toast("Item updated");loadCatalog();
+  };
+};
+window.delCatalogItem=async id=>{
+  if(!confirm("Remove this item from catalog?"))return;
+  await db.collection("catalog").doc(id).delete();
+  toast("Removed");loadCatalog();
+};
+
+/* =========================================================
+   BUSINESS: ADD FROM CATALOG
+   ========================================================= */
+window.bizAddFromCatalog=async()=>{
+  $("prodTable").innerHTML=`<div class="empty">Loading catalog…</div>`;
+  const snap=await db.collection("catalog").orderBy("name").get();
+  const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(!items.length){toast("Catalog is empty — ask the portal admin to add items.");bizProds();return}
+  window._catItems=items;window._catSel=new Set();
+  openModal(`<h2>Add from catalog</h2>
+    <p class="muted">Select items to add to your products. Set prices after to make them available.</p>
+    <input id="catMF" placeholder="Search catalog…" oninput="filterCatModal(this.value)" style="margin-bottom:10px">
+    <div style="max-height:360px;overflow:auto">
+      <div class="cat-grid" id="catMGrid">${items.map(item=>`
+        <div class="cat-card selectable" id="ci_${item.id}" onclick="toggleCatSel('${item.id}')">
+          <div class="sel-check">✓</div>
+          ${item.imageUrl?`<img src="${item.imageUrl}" onerror="this.style.display='none'" alt="">`:
+            `<div style="width:70px;height:70px;background:var(--bg);border-radius:8px;margin:0 auto 8px"></div>`}
+          <div class="iname">${esc(item.name)}</div>
+          ${item.brand?`<div class="muted">${esc(item.brand)}</div>`:""}
+          ${item.unit?`<div class="muted">${esc(item.unit)}</div>`:""}
+        </div>`).join("")}
+      </div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:12px" id="addSelBtn">Select items to add</button>`);
+  $("addSelBtn").onclick=async()=>{
+    if(!window._catSel.size){toast("Select at least one item");return}
+    $("addSelBtn").disabled=true;$("addSelBtn").textContent="Adding…";
+    const col=db.collection("businesses").doc(myBiz.id).collection("products");
+    const batch=db.batch();
+    window._catSel.forEach(id=>{
+      const item=window._catItems.find(i=>i.id===id);
+      if(item)batch.set(col.doc(),{name:item.name,desc:(item.brand?item.brand+" ":"")+( item.unit||""),price:0,available:false,sortOrder:99,imageUrl:item.imageUrl||"",imageData:"",catalogId:item.id,createdAt:FV.serverTimestamp()});
+    });
+    await batch.commit();
+    closeModal();
+    toast(window._catSel.size+" items added — set prices to make them visible to customers");
+    bizProds();
+  };
+};
+window.toggleCatSel=id=>{
+  const card=$("ci_"+id);if(!card)return;
+  if(window._catSel.has(id)){window._catSel.delete(id);card.classList.remove("selected")}
+  else{window._catSel.add(id);card.classList.add("selected")}
+  $("addSelBtn").textContent=window._catSel.size?`Add ${window._catSel.size} selected item${window._catSel.size>1?"s":""}`:"Select items to add";
+};
+window.filterCatModal=v=>{
+  const l=v.toLowerCase();
+  document.querySelectorAll("#catMGrid .cat-card").forEach(c=>c.style.display=c.textContent.toLowerCase().includes(l)?"":"none");
+};
 
 /* combined status badge HTML used on both customer & business sides */
 function statusBadges(o){
